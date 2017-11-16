@@ -13,6 +13,9 @@ from jenkinsapi.build import Build
 from jenkinsapi.utils.crumb_requester import CrumbRequester
 
 def run():
+    f=open('record.csv','w')
+    f.write('Project,版本,最後更新時間,備註\n')
+    f.close
     var = input("請輸入需要build的project : (e.g.RD1_H5_Client_25_Build or ALL)" )
     print("You entered " + str(var))
     if var == 'ALL':
@@ -34,7 +37,7 @@ def run():
                 #print (pn[2][i])
     else:
         tag = input("請輸入tag : (e.g.1.0.2)" )
-        buildType = input("請輸入buildType : (e.g.直接build遊戲)" )
+        buildType = input("請輸入buildType : (e.g.直接Build遊戲)" )
         multi(var, tag, buildType)
 
 def thread(project, tag, buildType):
@@ -51,6 +54,13 @@ def thread(project, tag, buildType):
         j = Jenkins(JENKINS_URL, username=JENKINS_USER, password=JENKINS_PASSWORD, requester=crumb)
         params = {'tag':tag ,'buildType':buildType}
         j.build_job(job,params)
+        print("*------寫入紀錄檔-------------------------*")
+        f = open("record.csv","a")
+        f.write(project+",")
+        f.write(tag+",")
+        f.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
+        f.close
+        print("*------Done-------------------------------*")
 
     except Exception as e:
         print("*------寫入紀錄檔-------------------------*")
@@ -62,15 +72,6 @@ def thread(project, tag, buildType):
         f.close
         print("*------Build fail please check the data is correct.------*")
         pass
-
-    except:
-        print("*------寫入紀錄檔-------------------------*")
-        f = open("record.csv","a")
-        f.write(project+",")
-        f.write(tag+",")
-        f.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+"\n")
-        f.close
-        print("*------Done-------------------------------*")
 
 def multi(project, tag, buildType):
     jobs = []
